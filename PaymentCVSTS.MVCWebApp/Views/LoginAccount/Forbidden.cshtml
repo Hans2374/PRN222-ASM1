@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null; // Tắt sử dụng layout cho trang này
+}
+
+<div class="row text-center mx-2">
+    <h3 class="text-danger">Forbidden</h3>
+    <h4 class="text-danger">You do not have permission to do this function!</h4>
+    <a asp-action="Login" class="btn-login">Login</a>
+</div>
+
+<style>
+    .row {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Đảm bảo nó chiếm toàn bộ chiều cao màn hình */
+    }
+
+    .text-danger {
+        color: red; /* Màu chữ đỏ */
+    }
+
+    .btn-login {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff; /* Màu xanh primary */
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+        .btn-login:hover {
+            background-color: #0056b3; /* Màu xanh đậm khi hover */
+        }
+</style>

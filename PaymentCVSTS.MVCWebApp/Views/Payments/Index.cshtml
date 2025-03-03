@@ -1,0 +1,95 @@
+﻿@model IEnumerable<PaymentCVSTS.Repositories.Models.Payment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    @* <a asp-action="Create">Create New</a> *@
+</p>
+<div class="row">
+    <div class="col-md-12 mb-2">
+        <form asp-action="Index">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="control-label">ChildID</label>
+                    <input type="text" id="childId" name="childId" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="control-label" for="status">Payment Status</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="" disabled selected>Select a status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Failed">Failed</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="control-label">Payment Date</label>
+                    <input type="date" id="date" name="date" class="form-control" />
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end justify-content-around">
+                    <input type="submit" class="btn btn-success" value="Search" />
+                    <a asp-action="Create" class="btn btn-primary">Create New</a>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+<div class="row">
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Amount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PaymentStatus)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PaymentMethod)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PaymentDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Appointment.TotalCost)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @item.Amount.ToString("0")
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PaymentStatus)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PaymentMethod)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PaymentDate)
+                    </td>
+                    <td>
+                        @item.Appointment.TotalCost.ToString("0")
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.PaymentId">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.PaymentId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.PaymentId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
