@@ -3,8 +3,27 @@
     ViewData["Title"] = "Error";
 }
 
-<h1 class="text-danger">Error.</h1>
+<h1 class="text-danger">Error</h1>
 <h2 class="text-danger">An error occurred while processing your request.</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        <h4>Error Details:</h4>
+        <p>@Model.ErrorMessage</p>
+
+        @if (Model.ValidationErrors != null && Model.ValidationErrors.Any())
+        {
+            <h5>Validation Errors:</h5>
+            <ul>
+                @foreach (var error in Model.ValidationErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        }
+    </div>
+}
 
 @if (Model.ShowRequestId)
 {
@@ -13,13 +32,18 @@
     </p>
 }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+@if (!string.IsNullOrEmpty(Model.StackTrace))
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Stack Trace</h5>
+        </div>
+        <div class="card-body">
+            <pre class="text-small">@Model.StackTrace</pre>
+        </div>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Return to Home</a>
+</div>

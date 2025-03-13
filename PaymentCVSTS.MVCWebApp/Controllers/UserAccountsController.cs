@@ -22,12 +22,23 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("Login");
-            //  return View();
+            // Redirect unauthenticated users to login
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return RedirectToAction("Index", "Payments");
         }
 
         public IActionResult Login()
         {
+            // If user is already authenticated, redirect to payments
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Payments");
+            }
+
             return View("/Views/LoginAccount/Login.cshtml");
         }
 
@@ -36,44 +47,71 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         {
             try
             {
+                // Clear existing authentication
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
                 var userAccount = await _userAccountService.Login(userName, password);
 
                 if (userAccount != null)
                 {
                     var claims = new List<Claim>
-                        {
-                            new Claim(ClaimTypes.Name, userAccount.UserName),
-                            new Claim(ClaimTypes.Role, userAccount.RoleId.ToString())
-                        };
+                    {
+                        new Claim(ClaimTypes.Name, userAccount.UserName),
+                        new Claim(ClaimTypes.Role, userAccount.RoleId.ToString()),
+                        new Claim(ClaimTypes.NameIdentifier, userAccount.UserAccountId.ToString())
+                    };
 
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+                    var principal = new ClaimsPrincipal(identity);
 
-                    Response.Cookies.Append("UserName", userAccount.FullName);
-                    Response.Cookies.Append("Role", userAccount.RoleId.ToString());
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        principal,
+                        new AuthenticationProperties
+                        {
+                            IsPersistent = false, // Don't use "remember me" functionality
+                            ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
+                        });
+
+                    // Use cookies for non-auth-related user information only
+                    Response.Cookies.Append("UserName", userAccount.FullName, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        SameSite = SameSiteMode.Lax,
+                        Expires = DateTimeOffset.Now.AddMinutes(30)
+                    });
 
                     return RedirectToAction("Index", "Payments");
                 }
+
+                ModelState.AddModelError("", "Invalid username or password");
             }
             catch (Exception ex)
             {
-
-                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                ModelState.AddModelError("", "Login failure");
-
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                ModelState.AddModelError("", "Login failure: " + ex.Message);
             }
-            return View();
+
+            return View("/Views/LoginAccount/Login.cshtml");
         }
 
         public async Task<IActionResult> Logout()
         {
+            // Clear authentication cookie
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Clear other cookies
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                Response.Cookies.Delete(cookie);
+            }
+
             return RedirectToAction("Login", "UserAccounts");
         }
 
-        public async Task<IActionResult> Forbidden()
+        public IActionResult Forbidden()
         {
-            return View("/Views/LoginAccount/Forbiden.cshtml"); ;
+            return View("/Views/LoginAccount/Forbidden.cshtml");
         }
     }
 }

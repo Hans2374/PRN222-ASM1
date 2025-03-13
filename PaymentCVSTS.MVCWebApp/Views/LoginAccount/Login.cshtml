@@ -1,7 +1,9 @@
 ﻿@model PaymentCVSTS.MVCWebApp.Models.LoginRequest
 
 @{
-    Layout = null; // Tắt sử dụng layout cho trang này
+    Layout = null; // Disable layout for this page
+    var validationErrors = ViewBag.ValidationErrors as List<string>;
+    var successMessage = TempData["SuccessMessage"] as string;
 }
 
 <!DOCTYPE html>
@@ -10,6 +12,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
     <style>
         body {
@@ -78,13 +82,53 @@
             .btn:hover {
                 background-color: #0056b3;
             }
+
+        /* Validation Styles */
+        .validation-summary {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
 
     <div class="login-container">
         <h2>Login</h2>
-        <form asp-action="Login">
+
+        @if (validationErrors != null && validationErrors.Any())
+        {
+            <div class="validation-summary">
+                <h5><i class="bi bi-exclamation-triangle-fill"></i> Please correct the following errors:</h5>
+                <ul class="mb-0">
+                    @foreach (var error in validationErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="success-message">
+                <i class="bi bi-check-circle-fill"></i> @successMessage
+            </div>
+        }
+
+        <form asp-controller="UserAccounts" asp-action="Login" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
@@ -105,5 +149,9 @@
         </form>
     </div>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 </body>
 </html>

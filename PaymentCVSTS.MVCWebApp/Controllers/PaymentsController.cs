@@ -11,6 +11,7 @@ using PaymentCVSTS.Services;
 
 namespace PaymentCVSTS.MVCWebApp.Controllers
 {
+    [Authorize] // Add this attribute to require authentication for all actions
     public class PaymentsController : Controller
     {
         private readonly IPayment _payment;
@@ -23,14 +24,51 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         }
 
         // GET: Payments
-        public async Task<IActionResult> Index(DateOnly? date, string? status, int? childId)
+        public async Task<IActionResult> Index(DateOnly? date, string? status, int? childId, string sortOrder, int page = 1)
         {
+            // Set page size
+            int pageSize = 7;
+
+            // Set up sorting parameters
+            ViewData["AmountSortParam"] = string.IsNullOrEmpty(sortOrder) ? "amount_desc" : "";
+            ViewData["DateSortParam"] = sortOrder == "date" ? "date_desc" : "date";
+            ViewData["CurrentSort"] = sortOrder ?? "";
+            ViewData["CurrentFilter"] = new { date, status, childId };
+
             var payments = await _payment.GetAll();
 
             if (date.HasValue || !string.IsNullOrEmpty(status) || childId.HasValue)
             {
                 payments = await _payment.Search(date, status, childId);
             }
+
+            // Apply sorting
+            payments = sortOrder switch
+            {
+                "amount_desc" => payments.OrderByDescending(p => p.Amount).ToList(),
+                "date" => payments.OrderBy(p => p.PaymentDate).ToList(),
+                "date_desc" => payments.OrderByDescending(p => p.PaymentDate).ToList(),
+                _ => payments.OrderBy(p => p.Amount).ToList(), // Default sort by amount ascending
+            };
+
+            // Calculate pagination values
+            int totalItems = payments.Count;
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            // Ensure page is within valid range
+            page = Math.Max(1, Math.Min(page, totalPages));
+
+            // Get the correct page of items
+            var pagedPayments = payments
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Set up pagination info for the view
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["HasPreviousPage"] = page > 1;
+            ViewData["HasNextPage"] = page < totalPages;
 
             var appointments = await _appointmentService.GetAllAsync();
             if (appointments == null)
@@ -40,10 +78,8 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
 
             ViewData["Appointment"] = new SelectList(appointments, "AppointmentId", "TotalCost");
 
-            return View(payments);
+            return View(pagedPayments);
         }
-
-
 
         // GET: Payments/Details/5
         public async Task<IActionResult> Details(int id)
@@ -63,36 +99,41 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         }
 
         // GET: Payments/Create
-        public async Task<IActionResult> CreateAsync()
+        public async Task<IActionResult> Create()
         {
             var appointment = await _appointmentService.GetAllAsync();
-            ViewData["AppointmentID"] = new SelectList(appointment, "AppointmentId", "AppointmentId");
+            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId");
             return View();
         }
 
         // POST: Payments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Payment paymentDetail)
         {
+            // Check validation manually for required fields
+            if (string.IsNullOrEmpty(paymentDetail.PaymentStatus))
+                ModelState.AddModelError("PaymentStatus", "Payment Status is required");
+
+            if (string.IsNullOrEmpty(paymentDetail.PaymentMethod))
+                ModelState.AddModelError("PaymentMethod", "Payment Method is required");
+
+            if (paymentDetail.AppointmentId <= 0)
+                ModelState.AddModelError("AppointmentId", "Please select a valid appointment");
+
+            if (paymentDetail.Amount <= 0)
+                ModelState.AddModelError("Amount", "Amount must be greater than zero");
 
             if (ModelState.IsValid)
             {
                 await _payment.Create(paymentDetail);
                 return RedirectToAction(nameof(Index));
-
-
             }
 
-            var payments = await _payment.GetAll();
-            ViewData["PaymentId"] = new SelectList(payments, "PaymentId", "AppointmentId");
-
+            var appointment = await _appointmentService.GetAllAsync();
+            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId", paymentDetail.AppointmentId);
             return View(paymentDetail);
         }
-
-
 
         // GET: Payments/Edit/5
         public async Task<IActionResult> Edit(int id)
@@ -107,36 +148,46 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
             {
                 return NotFound();
             }
-            var payments = await _payment.GetAll();
+
             var appointment = await _appointmentService.GetAllAsync();
-            ViewData["PaymentId"] = new SelectList(payments, "PaymentId", "AppointmentId");
-            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId");
+            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId", payment.AppointmentId);
 
             return View(payment);
         }
 
         // POST: Payments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Payment payment)
         {
+            // Check validation manually for required fields
+            if (string.IsNullOrEmpty(payment.PaymentStatus))
+                ModelState.AddModelError("PaymentStatus", "Payment Status is required");
+
+            if (string.IsNullOrEmpty(payment.PaymentMethod))
+                ModelState.AddModelError("PaymentMethod", "Payment Method is required");
+
+            if (payment.AppointmentId <= 0)
+                ModelState.AddModelError("AppointmentId", "Please select a valid appointment");
+
+            if (payment.Amount <= 0)
+                ModelState.AddModelError("Amount", "Amount must be greater than zero");
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     await _payment.Update(payment);
-
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     throw new Exception();
                 }
-                return RedirectToAction(nameof(Index));
             }
-            var payments = await _payment.GetAll();
-            ViewData["PaymentId"] = new SelectList(payments, "PaymentId", "AppointmentId");
+
+            var appointment = await _appointmentService.GetAllAsync();
+            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId", payment.AppointmentId);
             return View(payment);
         }
 
@@ -164,8 +215,6 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var payment = await _payment.Delete(id);
-
-
             return RedirectToAction(nameof(Index));
         }
     }

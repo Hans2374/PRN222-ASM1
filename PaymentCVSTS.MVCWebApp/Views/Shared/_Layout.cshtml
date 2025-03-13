@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PaymentCVSTS.MVCWebApp.styles.css" asp-append-version="true" />
+    <!-- Add Font Awesome for sort icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Add Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
 </head>
 <body>
     <header>
@@ -20,28 +24,30 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Payments" asp-action="Index">Payments</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Payments" asp-action="Index">Payments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>
+                        }
                     </ul>
                 </div>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <div class="nav-item text-nowrap">
-                        Welcome
-                        @if (Context.Request.Cookies.ContainsKey("UserName") && !string.IsNullOrEmpty(Context.Request.Cookies["UserName"]))
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <strong>@Context.Request.Cookies["UserName"]</strong>
+                            <span>Welcome <strong>@(Context.Request.Cookies.ContainsKey("UserName") ? Context.Request.Cookies["UserName"] : User.Identity.Name)</strong> | </span>
+                            <a asp-controller="UserAccounts" asp-action="Logout">Logout</a>
                         }
                         else
                         {
-                            <strong>Guest</strong>
+                            <a asp-controller="UserAccounts" asp-action="Login">Login</a>
                         }
-                        | | <a asp-controller="UserAccounts" asp-action="Logout">LogOut</a>
                     </div>
                 </div>
             </div>

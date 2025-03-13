@@ -20,3 +20,51 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+th a {
+    color: #333;
+    text-decoration: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    th a:hover {
+        text-decoration: underline;
+    }
+
+    th a i {
+        margin-left: 5px;
+    }
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.sortable-header {
+    cursor: pointer;
+}
+
+/* Pagination styles */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.page-link {
+    color: #007bff;
+}
+
+    .page-link:hover {
+        color: #0056b3;
+    }
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #6c757d;
+}

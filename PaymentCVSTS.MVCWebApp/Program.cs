@@ -1,28 +1,31 @@
 ﻿using PaymentCVSTS.Services;
-using Microsoft.AspNetCore.Authentication.Cookies; // Import Cookie Authentication
-
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-//builder.Services.AddScoped<SP25_PRN222_NET1704_PRJ_G5_CVSTSContext>();
-
-
 //Dependency Injection 
 builder.Services.AddScoped<IPayment, PaymentService>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<UserAccountService>();
-builder.Services.AddAuthentication()
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-    {
-        options.LoginPath = new PathString("/LoginAccount/Login");
-        options.AccessDeniedPath = new PathString("/LoginAccount/Forbidden");
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 
+// Configure authentication with more secure settings
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = new PathString("/UserAccounts/Login");
+        options.AccessDeniedPath = new PathString("/LoginAccount/Forbidden");
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Use CookieSecurePolicy.Always in production with HTTPS
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
+// Add authorization services
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -39,8 +42,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-
-app.UseAuthorization();  // Kích hoạt Authorization Middleware
+// These middleware components must be in this specific order
+app.UseAuthentication();  // First authenticate the user
+app.UseAuthorization();   // Then authorize the user
 
 app.MapControllerRoute(
     name: "default",

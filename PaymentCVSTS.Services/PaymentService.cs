@@ -5,16 +5,12 @@ namespace PaymentCVSTS.Services
 {
     public interface IPayment
     {
-
         Task<List<Payment>> GetAll();
-
         Task<Payment> GetById(int id);
         Task<List<Payment>> Search(DateOnly? date, string? status, int? childId);
         Task<int> Create(Payment payment);
-
         Task<int> Update(Payment payment);
         Task<bool> Delete(int id);
-
     }
     public class PaymentService : IPayment
     {

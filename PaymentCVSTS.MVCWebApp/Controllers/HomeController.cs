@@ -14,11 +14,13 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
             _logger = logger;
         }
 
+        // Keep the Index action public for the landing page
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize] // Privacy page requires login
         public IActionResult Privacy()
         {
             return View();

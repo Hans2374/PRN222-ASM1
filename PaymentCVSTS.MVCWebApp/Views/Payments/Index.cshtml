@@ -6,9 +6,6 @@
 
 <h1>Index</h1>
 
-<p>
-    @* <a asp-action="Create">Create New</a> *@
-</p>
 <div class="row">
     <div class="col-md-12 mb-2">
         <form asp-action="Index">
@@ -39,15 +36,32 @@
                 </div>
             </div>
         </form>
-
     </div>
 </div>
+
 <div class="row">
     <table class="table table-bordered text-center">
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Amount)
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["AmountSortParam"]" class="text-dark">
+                        @Html.DisplayNameFor(model => model.Amount)
+                        @{
+                            var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
+                            if (currentSort == "")
+                            {
+                                <i class="fa fa-sort-up"></i>
+                            }
+                            else if (currentSort == "amount_desc")
+                            {
+                                <i class="fa fa-sort-down"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-sort"></i>
+                            }
+                        }
+                    </a>
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.PaymentStatus)
@@ -56,10 +70,24 @@
                     @Html.DisplayNameFor(model => model.PaymentMethod)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.PaymentDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Appointment.TotalCost)
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]" class="text-dark">
+                        @Html.DisplayNameFor(model => model.PaymentDate)
+                        @{
+                            var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
+                            if (currentSort == "date")
+                            {
+                                <i class="fa fa-sort-up"></i>
+                            }
+                            else if (currentSort == "date_desc")
+                            {
+                                <i class="fa fa-sort-down"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-sort"></i>
+                            }
+                        }
+                    </a>
                 </th>
                 <th></th>
             </tr>
@@ -69,7 +97,7 @@
             {
                 <tr>
                     <td>
-                        @item.Amount.ToString("0")
+                        $@item.Amount.ToString("0")
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.PaymentStatus)
@@ -81,9 +109,6 @@
                         @Html.DisplayFor(modelItem => item.PaymentDate)
                     </td>
                     <td>
-                        @item.Appointment.TotalCost.ToString("0")
-                    </td>
-                    <td>
                         <a asp-action="Edit" asp-route-id="@item.PaymentId">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.PaymentId">Details</a> |
                         <a asp-action="Delete" asp-route-id="@item.PaymentId">Delete</a>
@@ -92,4 +117,75 @@
             }
         </tbody>
     </table>
+
+    <!-- Pagination Controls -->
+    @{
+        int currentPage = (int)ViewData["CurrentPage"];
+        int totalPages = (int)ViewData["TotalPages"];
+        bool hasPreviousPage = (bool)ViewData["HasPreviousPage"];
+        bool hasNextPage = (bool)ViewData["HasNextPage"];
+        var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
+        var currentFilter = ViewData["CurrentFilter"] as dynamic;
+    }
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            <span>Showing page @currentPage of @totalPages</span>
+        </div>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item @(!hasPreviousPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="1"
+                       asp-route-sortOrder="@currentSort"
+                       asp-route-date="@currentFilter?.date"
+                       asp-route-status="@currentFilter?.status"
+                       asp-route-childId="@currentFilter?.childId">First</a>
+                </li>
+                <li class="page-item @(!hasPreviousPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage - 1)"
+                       asp-route-sortOrder="@currentSort"
+                       asp-route-date="@currentFilter?.date"
+                       asp-route-status="@currentFilter?.status"
+                       asp-route-childId="@currentFilter?.childId">Previous</a>
+                </li>
+
+                @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-sortOrder="@currentSort"
+                           asp-route-date="@currentFilter?.date"
+                           asp-route-status="@currentFilter?.status"
+                           asp-route-childId="@currentFilter?.childId">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(!hasNextPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage + 1)"
+                       asp-route-sortOrder="@currentSort"
+                       asp-route-date="@currentFilter?.date"
+                       asp-route-status="@currentFilter?.status"
+                       asp-route-childId="@currentFilter?.childId">Next</a>
+                </li>
+                <li class="page-item @(!hasNextPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@totalPages"
+                       asp-route-sortOrder="@currentSort"
+                       asp-route-date="@currentFilter?.date"
+                       asp-route-status="@currentFilter?.status"
+                       asp-route-childId="@currentFilter?.childId">Last</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
