@@ -16,7 +16,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = new PathString("/UserAccounts/Login");
-        options.AccessDeniedPath = new PathString("/LoginAccount/Forbidden");
+        options.AccessDeniedPath = new PathString("/UserAccounts/Forbidden"); // Đã sửa đường dẫn này
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
@@ -24,8 +24,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
-// Add authorization services
-builder.Services.AddAuthorization();
+// Add authorization services and policies
+builder.Services.AddAuthorization(options =>
+{
+    // Chỉ cho phép Admin (giả sử RoleId = 1) truy cập vào chức năng Payment
+    // Điều chỉnh RoleId tùy theo cấu hình thực tế của bạn
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c =>
+                c.Type == System.Security.Claims.ClaimTypes.Role && c.Value == "1")));
+});
 
 var app = builder.Build();
 

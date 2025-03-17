@@ -89,6 +89,9 @@
                         }
                     </a>
                 </th>
+                <th>
+                    Service Type
+                </th>
                 <th></th>
             </tr>
         </thead>
@@ -107,6 +110,9 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.PaymentDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Appointment.ServiceType)
                     </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.PaymentId">Edit</a> |

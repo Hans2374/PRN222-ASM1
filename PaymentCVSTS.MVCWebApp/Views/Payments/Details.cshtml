@@ -40,6 +40,12 @@
         <dd class="col-sm-10">
             @Model.AppointmentId.ToString("0")
         </dd>
+        <dt class="col-sm-2">
+            Service Type
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Appointment.ServiceType)
+        </dd>
     </dl>
 </div>
 <div>

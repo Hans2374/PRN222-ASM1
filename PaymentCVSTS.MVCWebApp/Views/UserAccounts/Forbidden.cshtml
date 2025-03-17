@@ -82,6 +82,24 @@
             border: 1px solid #c3e6cb;
             border-radius: 5px;
         }
+
+        .home-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-left: 10px;
+        }
+
+            .home-button:hover {
+                background-color: #218838;
+                color: white;
+                text-decoration: none;
+            }
     </style>
 </head>
 <body>
@@ -89,13 +107,14 @@
     <div class="forbidden-container">
         <i class="bi bi-shield-lock-fill icon-large"></i>
 
-        <h3>Access Denied</h3>
-        <h4>You do not have permission to access this resource!</h4>
+        <h3>Truy cập bị từ chối</h3>
+        <h4>Bạn không có quyền truy cập chức năng này!</h4>
+        <p>Chức năng quản lý thanh toán chỉ được phép sử dụng bởi tài khoản Admin.</p>
 
         @if (validationErrors != null && validationErrors.Any())
         {
             <div class="validation-summary">
-                <h5><i class="bi bi-exclamation-triangle-fill"></i> Error Details:</h5>
+                <h5><i class="bi bi-exclamation-triangle-fill"></i> Chi tiết lỗi:</h5>
                 <ul class="mb-0">
                     @foreach (var error in validationErrors)
                     {
@@ -112,7 +131,14 @@
             </div>
         }
 
-        <a asp-controller="UserAccounts" asp-action="Login" class="btn-login">Return to Login</a>
+        <div>
+            <a asp-controller="Home" asp-action="Index" class="home-button">
+                <i class="bi bi-house-door-fill"></i> Về trang chủ
+            </a>
+            <a asp-controller="UserAccounts" asp-action="Logout" class="btn-login">
+                <i class="bi bi-box-arrow-left"></i> Đăng xuất
+            </a>
+        </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

@@ -81,7 +81,7 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                         Expires = DateTimeOffset.Now.AddMinutes(30)
                     });
 
-                    return RedirectToAction("Index", "Payments");
+                    return RedirectToAction("Index", "Home");
                 }
 
                 ModelState.AddModelError("", "Invalid username or password");
@@ -111,7 +111,7 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
 
         public IActionResult Forbidden()
         {
-            return View("/Views/LoginAccount/Forbidden.cshtml");
+            return View(); // This will use the Views/UserAccounts/Forbidden.cshtml
         }
     }
 }

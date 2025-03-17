@@ -7,27 +7,47 @@
     {
         <div class="alert alert-success my-4">
             <h4><i class="bi bi-check-circle-fill"></i> You are logged in</h4>
-            <p>You have full access to the payment system.</p>
+            <p>You are now authenticated in the system.</p>
         </div>
-        <div class="row mt-4">
-            <div class="col-md-6 offset-md-3">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Payment Management</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Access the payment management features to view and manage payment records.</p>
-                        <a asp-controller="Payments" asp-action="Index" class="btn btn-primary">Go to Payments</a>
+
+        @if (User.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Role && c.Value == "1"))
+        {
+            <div class="row mt-4">
+                <div class="col-md-6 offset-md-3">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Payment Management</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Access the payment management features to view and manage payment records.</p>
+                            <a asp-controller="Payments" asp-action="Index" class="btn btn-primary">Go to Payments</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="row mt-4">
+                <div class="col-md-6 offset-md-3">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">Limited Access</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>You do not have permission to access the payment management system.</p>
+                            <p>This feature is only available to administrators.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     }
     else
     {
         <div class="alert alert-warning my-4">
             <h4><i class="bi bi-exclamation-triangle-fill"></i> Limited Access</h4>
-            <p>You are currently browsing as a guest. Please log in to access the payment management system.</p>
+            <p>You are currently browsing as a guest. Please log in to access the system.</p>
         </div>
         <div class="row mt-4">
             <div class="col-md-6 offset-md-3">
@@ -36,7 +56,7 @@
                         <h5 class="mb-0">Authentication Required</h5>
                     </div>
                     <div class="card-body">
-                        <p>You need to log in to view and manage payment records.</p>
+                        <p>You need to log in to access the system.</p>
                         <a asp-controller="UserAccounts" asp-action="Login" class="btn btn-primary">Log In</a>
                     </div>
                 </div>

@@ -11,7 +11,7 @@ using PaymentCVSTS.Services;
 
 namespace PaymentCVSTS.MVCWebApp.Controllers
 {
-    [Authorize] // Add this attribute to require authentication for all actions
+    [Authorize(Policy = "AdminOnly")] // Chỉ cho phép Admin truy cập
     public class PaymentsController : Controller
     {
         private readonly IPayment _payment;

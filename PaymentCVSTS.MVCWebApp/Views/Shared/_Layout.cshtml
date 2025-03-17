@@ -26,11 +26,14 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity.IsAuthenticated && User.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Role && c.Value == "1"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Payments" asp-action="Index">Payments</a>
                             </li>
+                        }
+                        @if (User.Identity.IsAuthenticated)
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">Privacy</a>
                             </li>
@@ -42,6 +45,14 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <span>Welcome <strong>@(Context.Request.Cookies.ContainsKey("UserName") ? Context.Request.Cookies["UserName"] : User.Identity.Name)</strong> | </span>
+                            @if (User.HasClaim(c => c.Type == System.Security.Claims.ClaimTypes.Role && c.Value == "1"))
+                            {
+                                <span class="badge bg-success me-2">Admin</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info me-2">Doctor</span>
+                            }
                             <a asp-controller="UserAccounts" asp-action="Logout">Logout</a>
                         }
                         else

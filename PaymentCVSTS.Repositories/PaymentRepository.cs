@@ -20,13 +20,16 @@ namespace PaymentCVSTS.Repositories
         public async Task<Payment> GetByIdAsync(int code)
         {
             var item = await _context.Payments
+                .Include(p => p.Appointment)
                 .FirstOrDefaultAsync(i => i.PaymentId == code);
             return item;
         }
 
         public async Task<List<Payment>> Search(DateOnly? date, string? status, int? childId)
         {
-            var query = _context.Payments.Include(p => p.Appointment).AsQueryable();
+            var query = _context.Payments
+                .Include(p => p.Appointment) // Ensure Appointment is always included
+                .AsQueryable();
 
             if (date.HasValue)
             {
