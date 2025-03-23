@@ -111,19 +111,34 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Payment paymentDetail)
         {
-            // Check validation manually for required fields
+            // Always validate all fields before ModelState.IsValid check
+            // This approach ensures all validation errors show at once
+            if (paymentDetail.Amount <= 0)
+            {
+                ModelState.AddModelError("Amount", "The Amount field is required.");
+            }
+
             if (string.IsNullOrEmpty(paymentDetail.PaymentStatus))
-                ModelState.AddModelError("PaymentStatus", "Payment Status is required");
+            {
+                ModelState.AddModelError("PaymentStatus", "The PaymentStatus field is required.");
+            }
 
             if (string.IsNullOrEmpty(paymentDetail.PaymentMethod))
-                ModelState.AddModelError("PaymentMethod", "Payment Method is required");
+            {
+                ModelState.AddModelError("PaymentMethod", "The PaymentMethod field is required.");
+            }
+
+            if (paymentDetail.PaymentDate == default)
+            {
+                ModelState.AddModelError("PaymentDate", "The PaymentDate field is required.");
+            }
 
             if (paymentDetail.AppointmentId <= 0)
-                ModelState.AddModelError("AppointmentId", "Please select a valid appointment");
+            {
+                ModelState.AddModelError("AppointmentId", "The AppointmentId field is required.");
+            }
 
-            if (paymentDetail.Amount <= 0)
-                ModelState.AddModelError("Amount", "Amount must be greater than zero");
-
+            // Then check ModelState.IsValid
             if (ModelState.IsValid)
             {
                 await _payment.Create(paymentDetail);
@@ -160,18 +175,32 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Payment payment)
         {
-            // Check validation manually for required fields
+            // Always validate all fields before ModelState.IsValid check
+            // This ensures all validation errors show at once
+            if (payment.Amount <= 0)
+            {
+                ModelState.AddModelError("Amount", "The Amount field is required.");
+            }
+
             if (string.IsNullOrEmpty(payment.PaymentStatus))
-                ModelState.AddModelError("PaymentStatus", "Payment Status is required");
+            {
+                ModelState.AddModelError("PaymentStatus", "The PaymentStatus field is required.");
+            }
 
             if (string.IsNullOrEmpty(payment.PaymentMethod))
-                ModelState.AddModelError("PaymentMethod", "Payment Method is required");
+            {
+                ModelState.AddModelError("PaymentMethod", "The PaymentMethod field is required.");
+            }
+
+            if (payment.PaymentDate == default)
+            {
+                ModelState.AddModelError("PaymentDate", "The PaymentDate field is required.");
+            }
 
             if (payment.AppointmentId <= 0)
-                ModelState.AddModelError("AppointmentId", "Please select a valid appointment");
-
-            if (payment.Amount <= 0)
-                ModelState.AddModelError("Amount", "Amount must be greater than zero");
+            {
+                ModelState.AddModelError("AppointmentId", "The AppointmentId field is required.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -182,6 +211,7 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
+                    // Handle concurrency exception
                     throw new Exception();
                 }
             }

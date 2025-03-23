@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Payment Management</h1>
 
 <div class="row">
     <div class="col-md-12 mb-2">
@@ -47,12 +47,12 @@
                     <a asp-action="Index" asp-route-sortOrder="@ViewData["AmountSortParam"]" class="text-dark">
                         @Html.DisplayNameFor(model => model.Amount)
                         @{
-                            var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
-                            if (currentSort == "")
+                            var sortAmountStatus = ViewData["CurrentSort"]?.ToString() ?? "";
+                            if (sortAmountStatus == "")
                             {
                                 <i class="fa fa-sort-up"></i>
                             }
-                            else if (currentSort == "amount_desc")
+                            else if (sortAmountStatus == "amount_desc")
                             {
                                 <i class="fa fa-sort-down"></i>
                             }
@@ -73,12 +73,12 @@
                     <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]" class="text-dark">
                         @Html.DisplayNameFor(model => model.PaymentDate)
                         @{
-                            var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
-                            if (currentSort == "date")
+                            var sortDateStatus = ViewData["CurrentSort"]?.ToString() ?? "";
+                            if (sortDateStatus == "date")
                             {
                                 <i class="fa fa-sort-up"></i>
                             }
-                            else if (currentSort == "date_desc")
+                            else if (sortDateStatus == "date_desc")
                             {
                                 <i class="fa fa-sort-down"></i>
                             }

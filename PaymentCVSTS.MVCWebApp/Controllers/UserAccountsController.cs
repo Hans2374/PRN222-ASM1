@@ -55,11 +55,11 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                 if (userAccount != null)
                 {
                     var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, userAccount.UserName),
-                        new Claim(ClaimTypes.Role, userAccount.RoleId.ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, userAccount.UserAccountId.ToString())
-                    };
+            {
+                new Claim(ClaimTypes.Name, userAccount.UserName),
+                new Claim(ClaimTypes.Role, userAccount.RoleId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userAccount.UserAccountId.ToString())
+            };
 
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
@@ -69,7 +69,7 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                         principal,
                         new AuthenticationProperties
                         {
-                            IsPersistent = false, // Don't use "remember me" functionality
+                            IsPersistent = false,
                             ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
                         });
 
@@ -81,7 +81,15 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                         Expires = DateTimeOffset.Now.AddMinutes(30)
                     });
 
-                    return RedirectToAction("Index", "Home");
+                    // Check role and redirect based on role
+                    if (userAccount.RoleId == 1) // Admin role
+                    {
+                        return RedirectToAction("Index", "Payments");
+                    }
+                    else // Other roles (doctor, etc.)
+                    {
+                        return RedirectToAction("Forbidden", "UserAccounts");
+                    }
                 }
 
                 ModelState.AddModelError("", "Invalid username or password");
@@ -111,7 +119,7 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
 
         public IActionResult Forbidden()
         {
-            return View(); // This will use the Views/UserAccounts/Forbidden.cshtml
+            return View("/Views/LoginAccount/Forbidden.cshtml");
         }
     }
 }
