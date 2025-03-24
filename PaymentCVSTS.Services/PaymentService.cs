@@ -7,19 +7,17 @@ namespace PaymentCVSTS.Services
     {
         Task<List<Payment>> GetAll();
         Task<Payment> GetById(int id);
-        Task<List<Payment>> Search(DateOnly? date, string? status, int? childId);
+        Task<List<Payment>> Search(DateOnly? date, string? status, string? method);
         Task<int> Create(Payment payment);
         Task<int> Update(Payment payment);
         Task<bool> Delete(int id);
     }
     public class PaymentService : IPayment
     {
-
         private readonly PaymentRepository _paymentRespository;
 
         public PaymentService()
         {
-
             _paymentRespository = new PaymentRepository();
         }
 
@@ -43,15 +41,14 @@ namespace PaymentCVSTS.Services
             return await _paymentRespository.GetAll();
         }
 
-
         public async Task<Payment> GetById(int id)
         {
             return await _paymentRespository.GetByIdAsync(id);
         }
 
-        public async Task<List<Payment>> Search(DateOnly? date, string? status, int? childId)
+        public async Task<List<Payment>> Search(DateOnly? date, string? status, string? method)
         {
-            return await _paymentRespository.Search(date, status, childId);
+            return await _paymentRespository.Search(date, status, method);
         }
 
         public async Task<int> Update(Payment payment)

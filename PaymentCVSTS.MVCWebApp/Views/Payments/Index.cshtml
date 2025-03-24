@@ -11,8 +11,10 @@
         <form asp-action="Index">
             <div class="row">
                 <div class="col-md-3">
-                    <label class="control-label">ChildID</label>
-                    <input type="text" id="childId" name="childId" class="form-control" />
+                    <label class="control-label">Payment Method</label>
+                    <select id="method" name="method" class="form-control" asp-items="@ViewData["PaymentMethods"] as SelectList">
+                        <option value="">-- Select Method --</option>
+                    </select>
                 </div>
 
                 <div class="col-md-3">
@@ -148,7 +150,7 @@
                        asp-route-sortOrder="@currentSort"
                        asp-route-date="@currentFilter?.date"
                        asp-route-status="@currentFilter?.status"
-                       asp-route-childId="@currentFilter?.childId">First</a>
+                       asp-route-method="@currentFilter?.method">First</a>
                 </li>
                 <li class="page-item @(!hasPreviousPage ? "disabled" : "")">
                     <a class="page-link"
@@ -157,7 +159,7 @@
                        asp-route-sortOrder="@currentSort"
                        asp-route-date="@currentFilter?.date"
                        asp-route-status="@currentFilter?.status"
-                       asp-route-childId="@currentFilter?.childId">Previous</a>
+                       asp-route-method="@currentFilter?.method">Previous</a>
                 </li>
 
                 @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
@@ -169,7 +171,7 @@
                            asp-route-sortOrder="@currentSort"
                            asp-route-date="@currentFilter?.date"
                            asp-route-status="@currentFilter?.status"
-                           asp-route-childId="@currentFilter?.childId">@i</a>
+                           asp-route-method="@currentFilter?.method">@i</a>
                     </li>
                 }
 
@@ -180,7 +182,7 @@
                        asp-route-sortOrder="@currentSort"
                        asp-route-date="@currentFilter?.date"
                        asp-route-status="@currentFilter?.status"
-                       asp-route-childId="@currentFilter?.childId">Next</a>
+                       asp-route-method="@currentFilter?.method">Next</a>
                 </li>
                 <li class="page-item @(!hasNextPage ? "disabled" : "")">
                     <a class="page-link"
@@ -189,7 +191,7 @@
                        asp-route-sortOrder="@currentSort"
                        asp-route-date="@currentFilter?.date"
                        asp-route-status="@currentFilter?.status"
-                       asp-route-childId="@currentFilter?.childId">Last</a>
+                       asp-route-method="@currentFilter?.method">Last</a>
                 </li>
             </ul>
         </nav>

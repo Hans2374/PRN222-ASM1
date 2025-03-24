@@ -24,7 +24,7 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         }
 
         // GET: Payments
-        public async Task<IActionResult> Index(DateOnly? date, string? status, int? childId, string sortOrder, int page = 1)
+        public async Task<IActionResult> Index(DateOnly? date, string? status, string? method, string sortOrder, int page = 1)
         {
             // Set page size
             int pageSize = 7;
@@ -33,13 +33,18 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
             ViewData["AmountSortParam"] = string.IsNullOrEmpty(sortOrder) ? "amount_desc" : "";
             ViewData["DateSortParam"] = sortOrder == "date" ? "date_desc" : "date";
             ViewData["CurrentSort"] = sortOrder ?? "";
-            ViewData["CurrentFilter"] = new { date, status, childId };
+            ViewData["CurrentFilter"] = new { date, status, method };
+
+            // Prepare payment methods for the dropdown
+            var paymentMethods = new List<string> { "Credit Card", "Debit Card", "PayPal", "Bank Transfer", "Cash" };
+            ViewData["PaymentMethods"] = new SelectList(
+                paymentMethods.Select(m => new { Id = m, Name = m }), "Id", "Name");
 
             var payments = await _payment.GetAll();
 
-            if (date.HasValue || !string.IsNullOrEmpty(status) || childId.HasValue)
+            if (date.HasValue || !string.IsNullOrEmpty(status) || !string.IsNullOrEmpty(method))
             {
-                payments = await _payment.Search(date, status, childId);
+                payments = await _payment.Search(date, status, method);
             }
 
             // Apply sorting
@@ -101,8 +106,24 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
         // GET: Payments/Create
         public async Task<IActionResult> Create()
         {
-            var appointment = await _appointmentService.GetAllAsync();
-            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId");
+            var appointments = await _appointmentService.GetAllAsync();
+
+            // Format dropdown to show AppointmentId and ServiceType
+            ViewData["AppointmentId"] = new SelectList(
+                appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    DisplayText = $"ID: {a.AppointmentId} - {a.ServiceType ?? "No service type"}"
+                }),
+                "AppointmentId",
+                "DisplayText"
+            );
+
+            // Prepare payment methods for the dropdown
+            var paymentMethods = new List<string> { "Credit Card", "Debit Card", "PayPal", "Bank Transfer", "Cash" };
+            ViewData["PaymentMethods"] = new SelectList(
+                paymentMethods.Select(m => new { Id = m, Name = m }), "Id", "Name");
+
             return View();
         }
 
@@ -145,8 +166,25 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var appointment = await _appointmentService.GetAllAsync();
-            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId", paymentDetail.AppointmentId);
+            var appointments = await _appointmentService.GetAllAsync();
+
+            // Format dropdown to show AppointmentId and ServiceType
+            ViewData["AppointmentId"] = new SelectList(
+                appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    DisplayText = $"ID: {a.AppointmentId} - {a.ServiceType ?? "No service type"}"
+                }),
+                "AppointmentId",
+                "DisplayText",
+                paymentDetail.AppointmentId
+            );
+
+            // Re-populate payment methods dropdown on validation failure
+            var paymentMethods = new List<string> { "Credit Card", "Debit Card", "PayPal", "Bank Transfer", "Cash" };
+            ViewData["PaymentMethods"] = new SelectList(
+                paymentMethods.Select(m => new { Id = m, Name = m }), "Id", "Name", paymentDetail.PaymentMethod);
+
             return View(paymentDetail);
         }
 
@@ -164,8 +202,24 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                 return NotFound();
             }
 
-            var appointment = await _appointmentService.GetAllAsync();
-            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId", payment.AppointmentId);
+            var appointments = await _appointmentService.GetAllAsync();
+
+            // Format dropdown to show AppointmentId and ServiceType
+            ViewData["AppointmentId"] = new SelectList(
+                appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    DisplayText = $"ID: {a.AppointmentId} - {a.ServiceType ?? "No service type"}"
+                }),
+                "AppointmentId",
+                "DisplayText",
+                payment.AppointmentId
+            );
+
+            // Prepare payment methods for the dropdown
+            var paymentMethods = new List<string> { "Credit Card", "Debit Card", "PayPal", "Bank Transfer", "Cash" };
+            ViewData["PaymentMethods"] = new SelectList(
+                paymentMethods.Select(m => new { Id = m, Name = m }), "Id", "Name", payment.PaymentMethod);
 
             return View(payment);
         }
@@ -216,8 +270,25 @@ namespace PaymentCVSTS.MVCWebApp.Controllers
                 }
             }
 
-            var appointment = await _appointmentService.GetAllAsync();
-            ViewData["AppointmentId"] = new SelectList(appointment, "AppointmentId", "AppointmentId", payment.AppointmentId);
+            var appointments = await _appointmentService.GetAllAsync();
+
+            // Format dropdown to show AppointmentId and ServiceType
+            ViewData["AppointmentId"] = new SelectList(
+                appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    DisplayText = $"ID: {a.AppointmentId} - {a.ServiceType ?? "No service type"}"
+                }),
+                "AppointmentId",
+                "DisplayText",
+                payment.AppointmentId
+            );
+
+            // Re-populate payment methods dropdown on validation failure
+            var paymentMethods = new List<string> { "Credit Card", "Debit Card", "PayPal", "Bank Transfer", "Cash" };
+            ViewData["PaymentMethods"] = new SelectList(
+                paymentMethods.Select(m => new { Id = m, Name = m }), "Id", "Name", payment.PaymentMethod);
+
             return View(payment);
         }
 

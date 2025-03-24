@@ -25,7 +25,7 @@ namespace PaymentCVSTS.Repositories
             return item;
         }
 
-        public async Task<List<Payment>> Search(DateOnly? date, string? status, int? childId)
+        public async Task<List<Payment>> Search(DateOnly? date, string? status, string? method)
         {
             var query = _context.Payments
                 .Include(p => p.Appointment) // Ensure Appointment is always included
@@ -41,13 +41,12 @@ namespace PaymentCVSTS.Repositories
                 query = query.Where(vr => vr.PaymentStatus.Contains(status));
             }
 
-            if (childId.HasValue)
+            if (!string.IsNullOrEmpty(method))
             {
-                query = query.Where(vr => vr.Appointment.ChildId == childId.Value);
+                query = query.Where(vr => vr.PaymentMethod.Contains(method));
             }
 
             return await query.ToListAsync();
         }
-
     }
 }
